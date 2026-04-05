@@ -51,7 +51,7 @@ Step 5 - Install Python Dependencies:
 pip install fastapi uvicorn yfinance tradingpattern langchain-core langchain-anthropic
 
 Step 6 - Install Trading Signal Skill:
-cp zeroclaw/scripts/trading_signal.py ~/.zeroclaw/workspace/trading_signal.py
+cp trading_signal.py ~/.zeroclaw/workspace/trading_signal.py
 cd zeroclaw
 ./target/release/zeroclaw skills install skills/trading_signal
 
@@ -70,7 +70,7 @@ cd trading-ui
 npm install
 
 Step 9 - Start the System:
-Terminal 1 (Backend): cd zeroclaw && uvicorn api:app --host 0.0.0.0 --port 8000
+Terminal 1 (Backend): uvicorn api:app --host 0.0.0.0 --port 8000
 Terminal 2 (Frontend): cd trading-ui && npm start
 
 Step 10 - Open Browser: http://localhost:3000
