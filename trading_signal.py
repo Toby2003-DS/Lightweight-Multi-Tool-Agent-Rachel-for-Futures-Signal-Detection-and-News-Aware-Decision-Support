@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
-sys.path.insert(0, '/Users/zhangjiahao/TradingPatternScanner')
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'TradingPatternScanner'))
 
 import argparse
 import warnings

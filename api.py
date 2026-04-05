@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -33,7 +34,7 @@ def clean_output(text):
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
     result = subprocess.run(
-        ["/Users/zhangjiahao/zeroclaw/target/release/zeroclaw", "agent", "-m", req.message],
+        [str(os.path.join(os.path.dirname(os.path.abspath(__file__)), "zeroclaw", "target", "release", "zeroclaw")), "agent", "-m", req.message],
         capture_output=True, text=True, timeout=120
     )
     response = clean_output(result.stdout)
