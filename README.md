@@ -53,7 +53,7 @@ pip install fastapi uvicorn yfinance tradingpattern langchain-core langchain-ant
 Step 6 - Install Trading Signal Skill:
 cp trading_signal.py ~/.zeroclaw/workspace/trading_signal.py
 cd zeroclaw
-./target/release/zeroclaw skills install skills/trading_signal
+./target/release/zeroclaw skills install ../zeroclaw/skills/trading_signal
 
 Step 7 - Configure zeroclaw Settings:
 Edit ~/.zeroclaw/config.toml and set:
