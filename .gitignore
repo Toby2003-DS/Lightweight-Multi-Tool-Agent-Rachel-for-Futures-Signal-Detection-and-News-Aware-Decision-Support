@@ -23,6 +23,11 @@ target/
 # zeroclaw runtime workspace
 .zeroclaw/
 
+# Stray root-level files (not part of this project)
+open-skills/
+api.py
+trading_signal.py
+
 # macOS
 .DS_Store
 
