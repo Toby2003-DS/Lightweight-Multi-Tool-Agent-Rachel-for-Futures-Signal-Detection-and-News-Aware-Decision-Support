@@ -9,7 +9,7 @@ metadata: {"zeroclaw":{"emoji":"📈","requires":{"bins":["python3"]}}}
 ## 使用方式
 
 ```bash
-python3 /Users/zhangjiahao/.zeroclaw/workspace/trading_signal.py --symbol 黄金 --interval 15m
+python3 ~/.zeroclaw/workspace/trading_signal.py --symbol 黄金 --interval 15m
 ```
 
 ## 参数

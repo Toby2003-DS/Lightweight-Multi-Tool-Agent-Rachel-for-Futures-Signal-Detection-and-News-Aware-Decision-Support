@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
-sys.path.insert(0, '/Users/zhangjiahao/TradingPatternScanner')
+from pathlib import Path
+sys.path.insert(0, str(Path.home() / "TradingPatternScanner"))
 
 import argparse
 import warnings
@@ -38,7 +39,7 @@ results = []
 for col in pattern_cols:
     signals = recent[recent[col].notna()]
     for ts, row in signals.iterrows():
-        results.append(f"{ts.strftime('%H:%M')} | {row[col]} | 收盘价: {row['Close']:.2f}")
+        results.append(f"{ts.strftime('%Y-%m-%d %H:%M')} | {row[col]} | 收盘价: {row['Close']:.2f}")
 
 if not results:
     print(f"{args.symbol}（{ticker}）未检测到明显交易形态。")

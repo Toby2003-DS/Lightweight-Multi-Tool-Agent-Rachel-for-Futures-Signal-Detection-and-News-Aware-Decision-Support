@@ -4,12 +4,18 @@ from pydantic import BaseModel
 import subprocess
 import json
 import re
+import os
+from pathlib import Path
+
+HOME = Path.home()
+WORKSPACE = HOME / ".zeroclaw" / "workspace"
+ZEROCLAW_BIN = HOME / "zeroclaw" / "target" / "release" / "zeroclaw"
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -33,7 +39,7 @@ def clean_output(text):
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
     result = subprocess.run(
-        ["/Users/zhangjiahao/zeroclaw/target/release/zeroclaw", "agent", "-m", req.message],
+        [str(ZEROCLAW_BIN), "agent", "-m", req.message],
         capture_output=True, text=True, timeout=120
     )
     response = clean_output(result.stdout)
@@ -42,20 +48,28 @@ async def chat(req: ChatRequest):
     return {"response": response}
 
 @app.get("/api/kline")
-async def kline(symbol: str = "GC=F"):
+async def kline(symbol: str = "GC=F", period: str = "1d", interval: str = "15m"):
     result = subprocess.run(
-        ["python3", "-c", f"""
-import yfinance as yf, json
-df = yf.download("{symbol}", period="1d", interval="15m", progress=False)
-df = df[['Open','High','Low','Close']].dropna()
-data = []
-for ts, row in df.iterrows():
-    data.append({{"time": int(ts.timestamp()), "open": round(float(row['Open']),2), "high": round(float(row['High']),2), "low": round(float(row['Low']),2), "close": round(float(row['Close']),2)}})
-print(json.dumps(data))
-"""],
+        ["python3", str(WORKSPACE / "kline.py"),
+         "--symbol", symbol, "--period", period, "--interval", interval],
         capture_output=True, text=True, timeout=30
     )
     try:
         return json.loads(result.stdout.strip())
-    except:
+    except Exception:
         return []
+
+
+@app.get("/api/news")
+async def news(symbol: str = "Gold", limit: int = 5):
+    env = dict(os.environ)
+    env["FINNHUB_API_KEY"] = env.get("FINNHUB_API_KEY", "")
+    result = subprocess.run(
+        ["python3", str(WORKSPACE / "news_pipeline.py"),
+         "--symbol", symbol, "--limit", str(limit), "--json"],
+        capture_output=True, text=True, timeout=180, env=env
+    )
+    try:
+        return json.loads(result.stdout.strip())
+    except Exception:
+        return {"symbol": symbol, "overall": "NEUTRAL", "score": 0, "total": 0, "articles": []}
