@@ -138,13 +138,21 @@ cd zeroclaw
 
 Follow the interactive prompts to configure the agent.
 
-### 7. Install Python dependencies
+### 7. Set the default model in config
+
+After onboarding, open `~/.zeroclaw/config.toml` and make sure `default_model` is set to a valid model:
+
+```toml
+default_model = "claude-haiku-4-5-20251001"
+```
+
+### 8. Install Python dependencies
 
 ```bash
 pip install fastapi uvicorn yfinance finnhub-python transformers peft torch accelerate python-dotenv
 ```
 
-### 8. Install zeroclaw skills
+### 9. Install zeroclaw skills
 
 ```bash
 cd zeroclaw
@@ -154,14 +162,14 @@ cd zeroclaw
 ./target/release/zeroclaw skills install skills/trading_signal/
 ```
 
-### 9. Sync scripts to workspace
+### 10. Sync scripts to workspace
 
 ```bash
 cd zeroclaw
 bash sync.sh
 ```
 
-### 10. Install frontend dependencies
+### 11. Install frontend dependencies
 
 ```bash
 cd trading-ui
