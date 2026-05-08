@@ -316,6 +316,7 @@ function AIScreen() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
+  const [mode, setMode] = useState('zeroclaw');
   const endRef = useRef(null);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [msgs]);
@@ -328,7 +329,8 @@ function AIScreen() {
     setMsgs(p => [...p, { role: 'user', text: msg }]);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/chat`, {
+      const endpoint = mode === 'mcp' ? `${API_BASE}/api/chat/mcp` : `${API_BASE}/api/chat`;
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg }),
@@ -363,6 +365,11 @@ function AIScreen() {
           <div className="ai-empty-ico">✦</div>
           <div className="ai-empty-title">Rachel Futures Assistant</div>
           <div className="ai-empty-sub">Ask me about futures signals, market news, technical analysis, or trading recommendations.</div>
+          <div className="mode-toggle">
+            <span className="mode-label">Engine:</span>
+            <button className={`mode-btn ${mode === 'zeroclaw' ? 'active' : ''}`} onClick={() => setMode('zeroclaw')}>⚡ zeroclaw</button>
+            <button className={`mode-btn ${mode === 'mcp' ? 'active' : ''}`} onClick={() => setMode('mcp')}>🔌 MCP</button>
+          </div>
           <div className="preset-list">
             {PRESET_QUESTIONS.map((q, i) => (
               <button key={i} className="preset-btn" onClick={() => send(q)}>

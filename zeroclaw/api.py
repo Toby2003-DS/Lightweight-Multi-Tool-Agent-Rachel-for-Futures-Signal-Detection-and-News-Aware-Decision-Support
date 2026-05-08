@@ -73,3 +73,84 @@ async def news(symbol: str = "Gold", limit: int = 5):
         return json.loads(result.stdout.strip())
     except Exception:
         return {"symbol": symbol, "overall": "NEUTRAL", "score": 0, "total": 0, "articles": []}
+
+
+@app.post("/api/chat/mcp")
+async def chat_mcp(req: ChatRequest):
+    """MCP-based chat endpoint - uses Claude API with MCP tool servers directly"""
+    import anthropic
+    import asyncio
+    import subprocess
+    import json as _json
+    from pathlib import Path
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        dotenv_path = Path.home() / "zeroclaw" / ".env"
+        if dotenv_path.exists():
+            for line in dotenv_path.read_text().splitlines():
+                if line.startswith("ANTHROPIC_API_KEY="):
+                    api_key = line.split("=", 1)[1].strip()
+
+    async def call_mcp_tool(server_script, tool_name, arguments):
+        messages = [
+            _json.dumps({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "rachel", "version": "1.0"}}}) + "\n",
+            _json.dumps({"jsonrpc": "2.0", "method": "notifications/initialized", "params": {}}) + "\n",
+            _json.dumps({"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": tool_name, "arguments": arguments}}) + "\n",
+        ]
+        proc = await asyncio.create_subprocess_exec(
+            "python3", server_script,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        try:
+            stdout, _ = await asyncio.wait_for(
+                proc.communicate(input="".join(messages).encode()),
+                timeout=300
+            )
+        except asyncio.TimeoutError:
+            proc.kill()
+            return "Timeout"
+        for line in stdout.decode().strip().split("\n"):
+            if line.strip():
+                try:
+                    data = _json.loads(line)
+                    if "result" in data and "content" in data["result"]:
+                        return data["result"]["content"][0]["text"]
+                except:
+                    pass
+        return "No result"
+
+    workspace = str(Path.home() / "zeroclaw" / "scripts")
+    signal_result = await call_mcp_tool(
+        f"{workspace}/trading_signal_server.py",
+        "get_trading_signals",
+        {"symbol": "GC=F"}
+    )
+    news_result = await call_mcp_tool(
+        f"{workspace}/news_pipeline_server.py",
+        "get_news_sentiment",
+        {"symbol": "Gold", "limit": 3}
+    )
+
+    client = anthropic.Anthropic(api_key=api_key)
+    synthesis = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=1000,
+        messages=[{
+            "role": "user",
+            "content": f"""You are Rachel, an AI futures trading assistant.
+
+User question: {req.message}
+
+Technical signals (from MCP trading_signal server):
+{signal_result}
+
+News sentiment (from MCP news_pipeline server):
+{news_result}
+
+Based on both sources, provide a comprehensive trading analysis and recommendation."""
+        }]
+    )
+    return {"response": synthesis.content[0].text, "mode": "mcp"}

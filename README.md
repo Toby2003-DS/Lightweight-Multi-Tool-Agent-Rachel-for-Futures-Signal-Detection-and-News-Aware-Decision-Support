@@ -43,6 +43,63 @@ zeroclaw Agent + Claude API
 - `POST /api/chat` — sends a message to the zeroclaw agent, returns response
 - `GET /api/kline?symbol=GC=F` — returns 15-minute OHLCV candles (yfinance)
 - `GET /api/news?symbol=Gold&limit=5` — returns Finnhub news with sentiment scores
+- `POST /api/chat/mcp` — alternative chat endpoint using Claude API directly with MCP tool servers
+
+---
+
+## MCP Architecture (Additional Path)
+
+### What is MCP?
+
+Model Context Protocol (MCP) is an open standard protocol developed by Anthropic that defines how AI models invoke external tools. Unlike proprietary plugin systems, any MCP-compatible AI client can connect to an MCP server and use its tools without additional integration work.
+
+### zeroclaw Skills vs. MCP
+
+| | zeroclaw Skills | MCP |
+|---|---|---|
+| Protocol | Proprietary zeroclaw Skill format | Open standard (Anthropic MCP) |
+| Compatibility | zeroclaw agent only | Any MCP-compatible AI client |
+| Tool definition | `SKILL.md` files | Python MCP server exposing named tools |
+| Usage in Rachel | Default path | Additional standardized path |
+
+### MCP Servers in This Project
+
+**`trading_signal_server.py`** — exposes `get_trading_signals` tool
+- Wraps `trading_signal.py` (TradingPatternScanner)
+- Input: symbol, interval, period
+- Output: detected chart patterns as structured text
+
+**`news_pipeline_server.py`** — exposes `get_news_sentiment` tool
+- Wraps `news_pipeline.py` (Finnhub + Qwen2.5-7B)
+- Input: symbol, limit
+- Output: news articles with sentiment scores and overall verdict
+
+### Dual-Path Architecture
+
+```
+Path 1 — Default (zeroclaw):
+User → FastAPI (/api/chat)
+         └→ zeroclaw Agent (Claude backbone)
+               └→ Skills
+                     ├→ trading_signal.py  (TradingPatternScanner)
+                     └→ news_pipeline.py   (Finnhub + Qwen2.5-7B)
+
+Path 2 — MCP:
+User → FastAPI (/api/chat/mcp)
+         └→ Claude API (direct)
+               └→ MCP Protocol
+                     ├→ trading_signal_server.py → trading_signal.py
+                     └→ news_pipeline_server.py  → news_pipeline.py
+```
+
+### Switching Between Modes
+
+In the **AI tab** of the React UI, an **Engine toggle** allows switching between the two paths:
+
+- **⚡ zeroclaw** (default) — routes to `/api/chat`, uses the zeroclaw agent with Skills
+- **🔌 MCP** — routes to `/api/chat/mcp`, uses Claude API directly with MCP tool servers
+
+zeroclaw remains the primary path. MCP is provided as an additional standardized path that demonstrates open-standard tool invocation.
 
 ---
 
