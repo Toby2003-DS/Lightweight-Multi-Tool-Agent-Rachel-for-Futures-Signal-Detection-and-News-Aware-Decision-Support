@@ -239,6 +239,6 @@ Rachel uses two fine-tuned models:
 
 ## References
 
-- [zeroclaw](https://github.com/zeroclaw-labs/zeroclaw) — Agent runtime framework
-- [TradingPatternScanner](https://github.com/white07S/TradingPatternScanner) — Chart pattern detection library
-- [Jessliang/rachel-finetuned](https://huggingface.co/Jessliang/rachel-finetuned) — Fine-tuned Qwen2.5-7B LoRA adapter
+- [zeroclaw](https://github.com/zeroclaw-labs/zeroclaw) — Open-source autonomous agent runtime originally found on GitHub. Redesigned and extended by Jiahao Zhang to integrate custom skills (news pipeline, trading signal), connect to the FastAPI backend, and support the Rachel workflow.
+- [TradingPatternScanner](https://github.com/white07S/TradingPatternScanner) — Open-source chart pattern detection library originally found on GitHub. Adapted and integrated by Jess Liang as the core signal detection engine, wrapped with a custom CLI interface and connected to the zeroclaw agent toolchain.
+- [Jessliang/rachel-finetuned](https://huggingface.co/Jessliang/rachel-finetuned) — Fine-tuned Qwen2.5-7B LoRA adapter for financial news summarization and sentiment analysis
