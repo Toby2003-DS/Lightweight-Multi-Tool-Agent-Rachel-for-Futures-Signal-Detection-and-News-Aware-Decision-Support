@@ -3,9 +3,9 @@
 **Course:** NYU Advanced Topics in Data Science
 
 **Team:**
-- Jiahao Zhang — Agent framework, workflow integration, model fine-tuning
-- Jess Liang — Trading signal model, LoRA fine-tuning (Qwen2.5-7B)
-- Nicole — Data preparation
+- Jiahao Zhang — Agent framework assembly, workflow integration
+- Jess Liang — Trading signal detection model, LoRA fine-tuning of Qwen2.5-7B for news summarization and sentiment analysis
+- Nicole — Training data preparation, UI design
 
 ---
 
@@ -225,10 +225,10 @@ Open your browser at **http://localhost:3000** or **http://localhost:3001**.
 
 Rachel uses two fine-tuned models:
 
-**Fine-tune 1 — News Sentiment (Jess's model)**
+**Fine-tune 1 — News Summarization and Sentiment Analysis (Jess Liang)**
 - Base: Qwen/Qwen2.5-7B-Instruct
 - Adapter: [Jessliang/rachel-finetuned](https://huggingface.co/Jessliang/rachel-finetuned)
-- Task: Summarize financial news articles and classify sentiment (Positive / Neutral / Negative)
+- Task: Summarize financial news articles in 1–2 sentences and classify sentiment (Positive / Neutral / Negative)
 - Training data: Financial news corpus prepared by Nicole
 
 **Fine-tune 2 — Agent LLM replacement (planned)**
